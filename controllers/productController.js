@@ -90,3 +90,19 @@ export const getDeals = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export const getProductBySlug = catchAsync(async (req, res, next) => {
+  const product = await Product.findOne({ slug: req.params.slug }).populate({
+    path: "reviews",
+  });
+  if (!product) {
+    return next(new AppError("No product found with that slug.", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      product,
+    },
+  });
+});
