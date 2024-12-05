@@ -4,7 +4,7 @@ import AppError from "../utils/appError.js";
 
 const getModelName = (Model) => Model.modelName.toLowerCase();
 
-export const getAll = (Model) =>
+export const getAll = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let filter = {};
     if (req.params.vendorId) filter = { vendor: req.params.vendorId };
@@ -18,7 +18,10 @@ export const getAll = (Model) =>
       .paginate()
       .search();
 
-    const doc = await features.query;
+    let query = features.query;
+    if (popOptions) query.populate(popOptions);
+    const doc = await query;
+
     const total = await new ApiFeatures(Model.find(filter), req.query)
       .filter()
       .search()

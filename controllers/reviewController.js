@@ -21,7 +21,7 @@ export const prepareUpdateBody = (req, res, next) => {
   next();
 };
 
-export const getAllReviews = getAll(Review);
+export const getAllReviews = getAll(Review, { path: "user" });
 export const getReview = getOne(Review);
 export const createReview = createOne(Review);
 export const isOwnerUpdateReview = isOwnerUpdate(Review, "user");
