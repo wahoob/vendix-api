@@ -298,3 +298,15 @@ export const resetPassword = catchAsync(async (req, res, next) => {
 
   sendTokenResponse(user, 200, res);
 });
+
+export const logout = (req, res) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt)
+    return res.status(200).json({ message: "Already logged out" });
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    sameSite: "None",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.status(204).send();
+};
