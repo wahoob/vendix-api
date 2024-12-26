@@ -7,55 +7,66 @@ import crypto from "crypto";
 import Email from "../utils/email.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
+import mongoose from "mongoose";
+import Cart from "../models/cartModel.js";
+import Wishlist from "../models/wishlistModel.js";
 
 export const signup = catchAsync(async (req, res, next) => {
-  const filteredBody = filterBody(
-    req.body,
-    "username",
-    "email",
-    "phone",
-    "fullName",
-    "profilePicture",
-    "addresses",
-    "password",
-    "passwordConfirm"
-  );
-  const user = await User.create(filteredBody);
-
-  const verificationCode = user.createVerificationCode();
-  await user.save({ validateBeforeSave: false });
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
   try {
+    const filteredBody = filterBody(
+      req.body,
+      "username",
+      "email",
+      "phone",
+      "fullName",
+      "profilePicture",
+      "addresses",
+      "password",
+      "passwordConfirm"
+    );
+
+    const user = await User.create([filteredBody], { session });
+    await Cart.create([{ user: user[0]._id }], { session });
+    await Wishlist.create([{ user: user[0]._id }], { session });
+
+    const verificationCode = user[0].createVerificationCode();
+    await user[0].save({ validateBeforeSave: false, session });
+
     const verificationURL = `${req.protocol}://${req.get(
       "host"
     )}/users/verify/${verificationCode}`;
+    await new Email(user[0], verificationURL).sendVerify();
 
-    await new Email(user, verificationURL).sendVerify();
+    await session.commitTransaction();
+    session.endSession();
 
     res.status(201).json({
       status: "success",
       message: "User signed up! Verification email sent.",
     });
   } catch (err) {
-    user.verificationCode = undefined;
-    user.verificationCodeExpires = undefined;
-    await user.save({ validateBeforeSave: false });
+    await session.abortTransaction();
+    session.endSession();
 
-    return next(
-      new AppError(
-        "User signed up successfully, but failed to send verification email. Please resend the verification email.",
-        500
-      )
-    );
+    return next(new AppError("Sorry, Try again later.", 500));
   }
 });
 
 export const resendVerificationCode = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email });
+  const { username, email } = req.body;
+  const user = await User.findOne({ $or: [{ email }, { username }] });
 
   if (!user) {
     return next(
-      new AppError("User with this email address is not found.", 404)
+      new AppError(
+        `User with this ${
+          username ? "username" : "email address"
+        } is not found.`,
+        404
+      )
     );
   }
 
@@ -130,15 +141,24 @@ export const signin = catchAsync(async (req, res, next) => {
     );
   }
 
-  let query = {};
-  username ? (query.username = username) : (query.email = email);
-  const user = await User.findOne(query).select("+password");
+  const user = await User.findOne({ $or: [{ username }, { email }] }).select(
+    "+password"
+  );
 
   if (!user || !(await user.correctPassword(password))) {
     return next(
       new AppError(
         `Invalid ${username ? "username" : "email"} or password.`,
         401
+      )
+    );
+  }
+
+  if (user.status === "awaitingVerification") {
+    return next(
+      new AppError(
+        "Your email is not verified. Please check your email for the verification link.",
+        403
       )
     );
   }

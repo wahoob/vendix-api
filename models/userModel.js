@@ -170,15 +170,6 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-userSchema.pre("save", async function (next) {
-  if (this.isNew) {
-    await Cart.create({ user: this._id });
-
-    await Wishlist.create({ user: this._id });
-  }
-  next();
-});
-
 userSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
     await Vendor.findByIdAndDelete(doc.vendor);
