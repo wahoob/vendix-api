@@ -1,5 +1,4 @@
 import User from "../models/userModel.js";
-import Vendor from "../models/vendorModel.js";
 import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import jwt from "jsonwebtoken";

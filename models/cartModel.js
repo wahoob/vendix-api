@@ -90,7 +90,7 @@ cartSchema.statics.calcTotals = async function (cartId) {
   await this.updateOne(
     { _id: cartId },
     {
-      total: stats[0]?.total || 0,
+      total: stats[0]?.total.toFixed(2) || 0,
       totalProducts: stats[0]?.totalProducts || 0,
       totalQuantity: stats[0]?.totalQuantity || 0,
     }

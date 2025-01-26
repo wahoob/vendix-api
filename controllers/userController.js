@@ -39,6 +39,70 @@ export const updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+export const addAddress = catchAsync(async (req, res, next) => {
+  const filteredBody = filterBody(
+    req.body,
+    "country",
+    "state",
+    "city",
+    "street"
+  );
+
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { $push: { addresses: filteredBody } },
+    { runValidators: true, new: true }
+  );
+  const address = user.addresses[user.addresses.length - 1];
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      address,
+    },
+  });
+});
+
+export const updateAddress = catchAsync(async (req, res, next) => {
+  const { addressId, updatedAddress } = req.body;
+
+  if (!addressId || !updatedAddress) {
+    return next(
+      new AppError("Address ID and updated address are required.", 400)
+    );
+  }
+
+  updatedAddress._id = addressId;
+  await User.findOneAndUpdate(
+    { _id: req.user.id, "addresses._id": addressId },
+    { $set: { "addresses.$": updatedAddress } },
+    { runValidators: true, new: true }
+  );
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      address: updatedAddress,
+    },
+  });
+});
+
+export const removeAddress = catchAsync(async (req, res, next) => {
+  const { addressId } = req.body;
+  if (!addressId) {
+    return next(new AppError("Address ID is required.", 400));
+  }
+
+  await User.findByIdAndUpdate(req.user.id, {
+    $pull: { addresses: { _id: addressId } },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "Address has been removed successfully!",
+  });
+});
+
 export const createUser = (req, res, next) => {
   return next(
     new AppError(

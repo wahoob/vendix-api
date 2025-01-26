@@ -23,6 +23,9 @@ import {
   updateUser,
   setUserId,
   requestVendorRole,
+  addAddress,
+  updateAddress,
+  removeAddress,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -48,6 +51,10 @@ router
   .get(setUserId, getUser)
   .patch(updateMe)
   .delete(setUserId, deleteUser);
+
+router.patch("/addAddress", addAddress);
+router.patch("/updateAddress", updateAddress);
+router.patch("/removeAddress", removeAddress);
 
 // Administration
 router.use(restrictTo("admin"));

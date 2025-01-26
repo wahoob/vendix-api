@@ -5,7 +5,7 @@ import catchAsync from "../utils/catchAsync.js";
 import Product from "../models/productModel.js";
 
 export const addItem = catchAsync(async (req, res, next) => {
-  const { product, quantity } = req.body;
+  const { product, quantity = 1 } = req.body;
 
   // Check if product exists
   const productExists = await Product.findById(product);
