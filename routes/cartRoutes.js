@@ -16,7 +16,7 @@ const router = express.Router();
 router.use(protectRoutes);
 
 // Authorization
-router.use(restrictTo("user"));
+router.use(restrictTo("user", "vendor"));
 
 router.get("/", getCart);
 

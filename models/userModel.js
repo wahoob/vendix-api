@@ -145,10 +145,6 @@ const userSchema = new mongoose.Schema({
     type: Date,
     select: false,
   },
-  wishlist: {
-    type: Schema.ObjectId,
-    ref: "Wishlist",
-  },
   vendor: {
     type: Schema.ObjectId,
     ref: "Vendor",

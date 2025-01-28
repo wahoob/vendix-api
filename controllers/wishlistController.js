@@ -2,6 +2,19 @@ import catchAsync from "../utils/catchAsync.js";
 import Wishlist from "../models/wishlistModel.js";
 import AppError from "../utils/appError.js";
 
+export const getWishlist = catchAsync(async (req, res, next) => {
+  const wishlist = await Wishlist.findOne({ user: req.user.id }).populate({
+    path: "products",
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      wishlist,
+    },
+  });
+});
+
 export const addItem = catchAsync(async (req, res, next) => {
   const wishlist = await Wishlist.findOne({
     user: req.user.id,
