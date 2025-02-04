@@ -7,6 +7,7 @@ import {
   getPriceRange,
   getProduct,
   getProductBySlug,
+  getProductsOverview,
   isOwnerDeleteProduct,
   prepareBody,
   setVendorId,
@@ -25,6 +26,13 @@ router.get("/price-range", getPriceRange);
 router.get("/brands", getBrands);
 router.get("/deals", getDeals);
 router.get("/slug/:slug", getProductBySlug);
+
+router.get(
+  "/overview",
+  protectRoutes,
+  restrictTo("admin"),
+  getProductsOverview
+);
 
 router
   .route("/")

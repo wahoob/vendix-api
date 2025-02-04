@@ -1,5 +1,7 @@
 import catchAsync from "../utils/catchAsync.js";
 import Product from "../models/productModel.js";
+import Category from "../models/categoryModel.js";
+import Order from "../models/orderModel.js";
 import filterBody from "../utils/filterBody.js";
 import {
   createOne,
@@ -103,6 +105,128 @@ export const getProductBySlug = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       product,
+    },
+  });
+});
+
+export const getProductsOverview = catchAsync(async (req, res, next) => {
+  const products = await Product.countDocuments();
+  const categories = await Category.countDocuments();
+  const orders = await Order.countDocuments();
+  const revenue = await Order.aggregate([
+    { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
+  ]);
+
+  const now = new Date();
+  const startDate = new Date();
+  startDate.setDate(now.getDate() - 30);
+  const monthlyEarning = await Order.aggregate([
+    { $match: { createdAt: { $gte: startDate, $lt: now } } },
+    { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
+  ]);
+
+  const monthlySales = await Order.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(now.getFullYear(), now.getMonth() - 11, 1),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+        total: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+    {
+      $project: {
+        _id: 0,
+        year: "$_id.year",
+        month: "$_id.month",
+        total: 1,
+      },
+    },
+  ]);
+
+  const monthlyProducts = await Product.aggregate([
+    {
+      $match: {
+        createdAt: {
+          $gte: new Date(now.getFullYear(), now.getMonth() - 11, 1),
+        },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+        },
+        total: { $sum: 1 },
+      },
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
+    {
+      $project: {
+        _id: 0,
+        year: "$_id.year",
+        month: "$_id.month",
+        total: 1,
+      },
+    },
+  ]);
+
+  const revenueByOrderStatus = await Order.aggregate([
+    {
+      $group: {
+        _id: {
+          orderStatus: "$orderStatus",
+          paymentStatus: "$paymentStatus",
+        },
+        total: { $sum: "$total" },
+      },
+    },
+    { $sort: { "_id.orderStatus": 1 } },
+    {
+      $project: {
+        _id: 0,
+        orderStatus: "$_id.orderStatus",
+        paymentStatus: "$_id.paymentStatus",
+        total: 1,
+      },
+    },
+  ]);
+
+  const topSellingCategories = await Product.aggregate([
+    { $group: { _id: "$category", productsCount: { $sum: 1 } } },
+    { $sort: { productsCount: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: "categories",
+        localField: "_id",
+        foreignField: "_id",
+        as: "category",
+      },
+    },
+    { $project: { _id: 0, productsCount: 1, category: "$category.name" } },
+    { $unwind: "$category" },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      products,
+      categories,
+      orders,
+      revenue: revenue[0]?.totalRevenue || 0,
+      monthlyEarning: monthlyEarning[0]?.totalRevenue || 0,
+      monthlySales,
+      monthlyProducts,
+      revenueByOrderStatus,
+      topSellingCategories,
     },
   });
 });
