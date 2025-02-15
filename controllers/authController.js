@@ -219,18 +219,7 @@ export const updatePassword = catchAsync(async (req, res, next) => {
 });
 
 export const updateEmail = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("+password");
-
-  if (!(await user.correctPassword(req.body.password))) {
-    return next(new AppError("Password is incorrect.", 401));
-  }
-
-  const existingUser = await User.findOne({ email: req.body.email });
-  if (existingUser) {
-    return next(
-      new AppError("This email is already in use. Please use another one.", 400)
-    );
-  }
+  const user = await User.findById(req.user.id);
 
   user.tempEmail = req.body.email;
   const validationError = user.validateSync(["tempEmail"]);

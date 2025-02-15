@@ -25,8 +25,7 @@ export const updateMe = catchAsync(async (req, res, next) => {
     "username",
     "phone",
     "fullName",
-    "profilePicture",
-    "addresses"
+    "profilePicture"
   );
 
   await User.findByIdAndUpdate(req.user.id, filteredBody, {
