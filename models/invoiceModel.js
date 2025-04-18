@@ -30,13 +30,6 @@ invoiceSchema.plugin(AutoIncrement, {
   start_seq: 1000,
 });
 
-invoiceSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "order",
-  });
-  next();
-});
-
 const Invoice = mongoose.model("Invoice", invoiceSchema);
 
 export default Invoice;

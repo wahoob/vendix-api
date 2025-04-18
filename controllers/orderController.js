@@ -34,7 +34,7 @@ export const getAllOrders = getAll(Order);
 export const isOwnerGetOrder = isOwnerGet(
   Order,
   "user",
-  { path: "products.product" },
+  ["products.product", "user"],
   "admin",
   "delivery"
 );

@@ -4,9 +4,22 @@ import catchAsync from "../utils/catchAsync.js";
 import { getAll, isOwnerGet } from "./handlerFactory.js";
 
 export const getAllInvoices = getAll(Invoice);
-export const getInvoice = isOwnerGet(Invoice, "user", {
-  path: "order",
-});
+export const getInvoice = isOwnerGet(
+  Invoice,
+  "user",
+  [
+    {
+      path: "order",
+      populate: {
+        path: "products.product",
+      },
+    },
+    {
+      path: "user",
+    },
+  ],
+  "admin"
+);
 
 export const checkUserPurchase = catchAsync(async (req, res, next) => {
   const invoices = await Invoice.find({
