@@ -10,7 +10,6 @@ import restrictTo from "../middleware/restrictTo.js";
 const router = express.Router();
 
 router.use(protectRoutes);
-router.use(restrictTo("user", "vendor"));
 
 router.get("/", getWishlist);
 router.patch("/add", addItem);

@@ -22,18 +22,12 @@ router
   .post(
     protectRoutes,
     setProductUserId,
-    restrictTo("user", "vendor"),
     validateProduct,
     checkUserPurchase,
     createReview
   );
 
-router.get(
-  "/can-review/:id",
-  protectRoutes,
-  restrictTo("user", "vendor"),
-  canUserLeaveReview
-);
+router.get("/can-review/:id", protectRoutes, canUserLeaveReview);
 
 router
   .route("/:id")

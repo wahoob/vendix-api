@@ -39,7 +39,7 @@ router
   .get(getAllProducts)
   .post(
     protectRoutes,
-    restrictTo("vendor"),
+    restrictTo("vendor", "admin"),
     prepareBody,
     validateCategory,
     setVendorId,

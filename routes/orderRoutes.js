@@ -16,11 +16,11 @@ const router = express.Router();
 // Authentication
 router.use(protectRoutes);
 
-router.get("/myOrders", restrictTo("vendor", "user"), getMyOrders);
+router.get("/myOrders", getMyOrders);
 
 router.patch(
   "/status/:id",
-  restrictTo("delivery"),
+  restrictTo("delivery", "admin"),
   protectOrderStatus("delivered", "cancelled"),
   prepareBody,
   updateOrder

@@ -24,7 +24,7 @@ router.get("/:id", getVendor);
 router.use(protectRoutes);
 
 // Administration and vendor-specific
-router.use(restrictTo("vendor"));
+router.use(restrictTo("vendor", "admin"));
 
 router.route("/me").get(getMe).patch(updateMe).delete(deleteMe, deleteOne);
 

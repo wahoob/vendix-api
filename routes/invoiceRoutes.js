@@ -12,10 +12,10 @@ const router = express.Router();
 // Authentication
 router.use(protectRoutes);
 
-router.get("/me", restrictTo("user"), setUserId, getAllInvoices);
+router.get("/me", setUserId, getAllInvoices);
 
 router.get("/", restrictTo("admin"), getAllInvoices);
 
-router.get("/:id", restrictTo("user", "admin"), getInvoice);
+router.get("/:id", getInvoice);
 
 export default router;

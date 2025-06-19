@@ -8,15 +8,11 @@ import {
   updateItemQuantity,
 } from "../controllers/cartController.js";
 import protectRoutes from "../middleware/protectRoutes.js";
-import restrictTo from "../middleware/restrictTo.js";
 
 const router = express.Router();
 
 // Authentication
 router.use(protectRoutes);
-
-// Authorization
-router.use(restrictTo("user", "vendor"));
 
 router.get("/", getCart);
 
