@@ -29,10 +29,15 @@ router
 
 router.get("/can-review/:id", protectRoutes, canUserLeaveReview);
 
+// router
+//   .route("/:id")
+//   .get(getReview)
+//   .patch(protectRoutes, prepareUpdateBody, isOwnerUpdateReview)
+//   .delete(protectRoutes, isOwnerDeleteReview);
+
 router
   .route("/:id")
   .get(getReview)
-  .patch(protectRoutes, prepareUpdateBody, isOwnerUpdateReview)
-  .delete(protectRoutes, isOwnerDeleteReview);
+  .patch(protectRoutes, prepareUpdateBody, isOwnerUpdateReview);
 
 export default router;

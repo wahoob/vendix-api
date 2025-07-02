@@ -22,7 +22,7 @@ export const signup = catchAsync(async (req, res, next) => {
       "email",
       "phone",
       "fullName",
-      "profilePicture",
+      "image",
       "addresses",
       "password",
       "passwordConfirm"

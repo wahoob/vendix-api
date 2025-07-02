@@ -46,10 +46,15 @@ router
     createProduct
   );
 
+// router
+//   .route("/:id")
+//   .get(getProduct)
+//   .patch(protectRoutes, validateCategory, isOwnerUpdate)
+//   .delete(protectRoutes, isOwnerDeleteProduct);
+
 router
   .route("/:id")
   .get(getProduct)
-  .patch(protectRoutes, validateCategory, isOwnerUpdate)
-  .delete(protectRoutes, isOwnerDeleteProduct);
+  .patch(protectRoutes, validateCategory, isOwnerUpdate);
 
 export default router;

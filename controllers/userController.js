@@ -11,7 +11,9 @@ export const setUserId = (req, res, next) => {
 };
 
 export const updateMe = catchAsync(async (req, res, next) => {
-  if (req.body.password || req.body.passwordConfirm || req.body.email) {
+  const { firstName, lastName, password, passwordConfirm, email } = req.body;
+
+  if (password || passwordConfirm || email) {
     return next(
       new AppError(
         "This route is not for password or email update. Please use /updatePassword to update your password or /updateEmail to update your email.",
@@ -20,16 +22,24 @@ export const updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
+  if (firstName || lastName) {
+    req.body.fullName = {
+      firstName: firstName || req.user.fullName.firstName,
+      lastName: lastName || req.user.fullName.lastName,
+    };
+  }
+
   const filteredBody = filterBody(
     req.body,
     "username",
     "phone",
     "fullName",
-    "profilePicture"
+    "image"
   );
 
-  await User.findByIdAndUpdate(req.user.id, filteredBody, {
+  const user = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     runValidators: true,
+    new: true,
   });
 
   res.status(200).json({

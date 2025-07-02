@@ -28,12 +28,14 @@ router.patch(
 
 router.get("/", restrictTo("admin", "delivery"), getAllOrders);
 
-router
-  .route("/:id")
-  .get(isOwnerGetOrder)
-  .delete(
-    protectOrderStatus("shipped", "delivered", "cancelled"),
-    isOwnerDeleteOrder
-  );
+// router
+//   .route("/:id")
+//   .get(isOwnerGetOrder)
+//   .delete(
+//     protectOrderStatus("shipped", "delivered", "cancelled"),
+//     isOwnerDeleteOrder
+//   );
+
+router.route("/:id").get(isOwnerGetOrder);
 
 export default router;

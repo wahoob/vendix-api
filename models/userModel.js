@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
     },
     required: [true, "Full name is required."],
   },
-  profilePicture: String,
+  image: String,
   role: {
     type: String,
     enum: {

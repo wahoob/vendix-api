@@ -27,6 +27,8 @@ import {
   updateAddress,
   removeAddress,
 } from "../controllers/userController.js";
+import { uploadSingle } from "../middleware/fileUpload.js";
+import handleImageUpload from "../middleware/handleImageUpload.js";
 
 const router = express.Router();
 
@@ -46,11 +48,19 @@ router.post("/requestVendorRole", restrictTo("user"), requestVendorRole);
 router.patch("/updatePassword", updatePassword);
 router.patch("/updateEmail", updateEmail);
 
+// router
+//   .route("/me")
+//   .get(setUserId, getUser)
+//   .patch(uploadSingle("image"), handleImageUpload("profile-pictures"), updateMe)
+//   .delete(setUserId, deleteUser);
 router
   .route("/me")
   .get(setUserId, getUser)
-  .patch(updateMe)
-  .delete(setUserId, deleteUser);
+  .patch(
+    uploadSingle("image"),
+    handleImageUpload("profile-pictures"),
+    updateMe
+  );
 
 router.patch("/addAddress", addAddress);
 router.patch("/updateAddress", updateAddress);
@@ -61,6 +71,7 @@ router.use(restrictTo("admin"));
 
 router.patch("/vendorRoleRequests/:userId", handleVendorRoleRequest);
 router.route("/").get(getAllUsers).post(createUser);
-router.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
+// router.route("/:id").get(getUser).patch(updateUser).delete(deleteUser);
+router.route("/:id").get(getUser).patch(updateUser);
 
 export default router;

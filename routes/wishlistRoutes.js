@@ -5,7 +5,6 @@ import {
   getWishlist,
   removeItem,
 } from "../controllers/wishlistController.js";
-import restrictTo from "../middleware/restrictTo.js";
 
 const router = express.Router();
 

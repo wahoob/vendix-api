@@ -26,11 +26,13 @@ router.use(protectRoutes);
 // Administration and vendor-specific
 router.use(restrictTo("vendor", "admin"));
 
-router.route("/me").get(getMe).patch(updateMe).delete(deleteMe, deleteOne);
+// router.route("/me").get(getMe).patch(updateMe).delete(deleteMe, deleteOne);
+router.route("/me").get(getMe).patch(updateMe);
 
 // Administration
 router.use(restrictTo("admin"));
 
-router.route("/:id").patch(updateVendor).delete(deleteVendor);
+// router.route("/:id").patch(updateVendor).delete(deleteVendor);
+router.route("/:id").patch(updateVendor);
 
 export default router;
