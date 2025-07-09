@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { google } from "googleapis";
 import { convert } from "html-to-text";
 import ejs from "ejs";
 import { dirname, join } from "path";
@@ -13,14 +14,27 @@ class Email {
     this.from = `"Vendix" <${process.env.EMAIL_FROM}>`;
   }
 
-  newTransport() {
+  async newTransport() {
     if (process.env.NODE_ENV === "production") {
+      const oAuth2Client = new google.auth.OAuth2(
+        process.env.CLIENT_ID,
+        process.env.CLIENT_SECRET,
+        process.env.REDIRECT_URI
+      );
+      oAuth2Client.setCredentials({
+        refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+      });
+      const accessToken = await oAuth2Client.getAccessToken();
+
       return nodemailer.createTransport({
-        host: "smtp.sendgrid.net",
-        port: 587,
+        service: "gmail",
         auth: {
-          user: "apikey",
-          pass: process.env.SENDGRID_API_KEY,
+          type: "OAuth2",
+          user: process.env.EMAIL_FROM,
+          clientId: process.env.CLIENT_ID,
+          clientSecret: process.env.CLIENT_SECRET,
+          refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+          accessToken,
         },
       });
     } else if (process.env.NODE_ENV === "development") {
@@ -56,7 +70,8 @@ class Email {
       }),
     };
 
-    await this.newTransport().sendMail(mailOptions);
+    const transport = await this.newTransport();
+    await transport.sendMail(mailOptions);
   }
 
   async sendWelcome() {

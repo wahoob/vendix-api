@@ -35,9 +35,7 @@ export const signup = catchAsync(async (req, res, next) => {
     const verificationCode = user[0].createVerificationCode();
     await user[0].save({ validateBeforeSave: false, session });
 
-    const verificationURL = `${req.protocol}://${req.get(
-      "host"
-    )}/users/verify/${verificationCode}`;
+    const verificationURL = `${process.env.FRONTEND_URL}/auth/verify/${verificationCode}`;
     await new Email(user[0], verificationURL).sendVerify();
 
     await session.commitTransaction();
@@ -50,6 +48,7 @@ export const signup = catchAsync(async (req, res, next) => {
   } catch (err) {
     await session.abortTransaction();
     session.endSession();
+    console.log(err);
 
     return next(new AppError("Sorry, Try again later.", 500));
   }
@@ -77,9 +76,7 @@ export const resendVerificationCode = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const verificationURL = `${req.protocol}://${req.get(
-      "host"
-    )}/users/verify/${verificationCode}`;
+    const verificationURL = `${process.env.FRONTEND_URL}/auth/verify/${verificationCode}`;
 
     await new Email(user, verificationURL).sendVerify();
 
@@ -124,7 +121,7 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   }
   await user.save({ validateBeforeSave: false });
 
-  const welcomeURL = `${req.protocol}://${req.get("host")}/profile`;
+  const welcomeURL = `${process.env.FRONTEND_URL}/dashboard/profile-settings`;
   await new Email(user, welcomeURL).sendWelcome();
 
   sendTokenResponse(user, 200, res);
@@ -231,9 +228,7 @@ export const updateEmail = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const verificationURL = `${req.protocol}://${req.get(
-      "host"
-    )}/users/verify/${verificationCode}`;
+    const verificationURL = `${process.env.FRONTEND_URL}/auth/verify/${verificationCode}`;
     await new Email(user, verificationURL).sendVerify();
 
     res.status(200).json({
@@ -262,9 +257,7 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const resetURL = `${req.protocol}://${req.get(
-      "host"
-    )}/users/resetPassword/${resetToken}`;
+    const resetURL = `${process.env.FRONTEND_URL}/auth/resetPassword/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
 
